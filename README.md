@@ -1,36 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Blog - Auto-Generated Content Platform
 
-## Getting Started
+A full-stack blog application that automatically generates articles using OpenAI's GPT models. Built with Next.js, Node.js, and PostgreSQL, containerized with Docker, and deployable to AWS.
 
-First, run the development server:
+## 🏗️ Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│   Next.js       │ ───> │   Node.js       │ ───> │   PostgreSQL    │
+│   Frontend      │      │   Backend API   │      │   Database      │
+│   (Port 3000)   │      │   (Port 4000)   │      │   (Neon Cloud)  │
+└─────────────────┘      └─────────────────┘      └─────────────────┘
+                                │
+                                ▼
+                         ┌─────────────────┐
+                         │   OpenAI API    │
+                         │   (GPT-3.5)     │
+                         └─────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **AI-Powered Content**: Automatic article generation using OpenAI GPT-3.5-turbo
+- **Automated Publishing**: Cron job generates 1 new article daily at 10:00 AM
+- **Modern UI**: Clean, minimal interface with responsive design
+- **RESTful API**: Well-structured backend with Express.js
+- **Containerized**: Docker & Docker Compose for easy deployment
+- **AWS Ready**: CodeBuild + ECR + EC2 deployment pipeline
+- **Database**: PostgreSQL with connection pooling
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Quick Start
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL (or use Neon cloud database)
+- OpenAI API key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd assimetria-blog
+   ```
 
-## Deploy on Vercel
+2. **Set up environment variables**
+   
+   Copy `.env` files and configure:
+   ```bash
+   # Root .env (for frontend)
+   NEXT_PUBLIC_API_URL=http://localhost:4000
+   OPENAI_API_KEY=your_key_here
+   DATABASE_URL=your_postgres_url
+   
+   # backend/.env
+   DATABASE_URL=your_postgres_url
+   OPENAI_API_KEY=your_key_here
+   PORT=4000
+   CORS_ORIGIN=http://localhost:3000
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Initialize the database**
+   ```bash
+   cd backend
+   npm install
+   npm run init-db
+   npm run seed
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Run with Docker Compose** (Recommended)
+   ```bash
+   docker-compose up --build
+   ```
+   
+   OR **Run manually**:
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   npm install
+   npm run dev
+   
+   # Terminal 2 - Frontend
+   npm install
+   npm run dev
+   ```
+
+5. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:4000/api/articles
+   - Health Check: http://localhost:4000/health
+
+## 📁 Project Structure
+
+```
+assimetria-blog/
+├── app/                      # Next.js app directory
+│   ├── article/[id]/        # Article detail page
+│   ├── globals.css          # Global styles
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── backend/                  # Node.js backend
+│   ├── src/
+│   │   ├── config/          # Database configuration
+│   │   ├── models/          # Data models
+│   │   ├── routes/          # API routes
+│   │   ├── services/        # Business logic
+│   │   │   ├── aiClient.js  # OpenAI integration
+│   │   │   └── articleJob.js # Cron job scheduler
+│   │   ├── scripts/         # Database scripts
+│   │   └── index.js         # Server entry point
+│   ├── Dockerfile           # Backend container
+│   └── package.json
+├── components/              # React components
+│   ├── ArticleCard.js
+│   ├── Header.js
+│   └── Footer.js
+├── lib/                     # Utilities
+│   ├── api.js              # API client
+│   └── utils.js            # Helper functions
+├── scripts/                 # Deployment scripts
+│   ├── init-ec2.sh         # EC2 initialization
+│   └── deploy.sh           # Deployment automation
+├── buildspec.yml           # AWS CodeBuild configuration
+├── docker-compose.yml      # Local development setup
+├── Dockerfile              # Frontend container
+└── README.md
+```
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/articles` | Get all articles |
+| GET | `/api/articles/:id` | Get single article |
+| POST | `/api/articles/generate` | Generate new article |
+
+## 🐳 Docker Deployment
+
+### Build Images
+
+```bash
+# Backend
+cd backend
+docker build -t blog-backend .
+
+# Frontend
+docker build -t blog-frontend .
+```
+
+### Run with Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+## ☁️ AWS Deployment
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed deployment instructions.
+
+## 📝 License
+
+MIT
+
+## 👤 Author
+
+Created for Asymetric Ventures Technical Challenge
